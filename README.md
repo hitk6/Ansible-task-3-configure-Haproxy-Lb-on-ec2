@@ -9,4 +9,4 @@ remane to directory to "ansible"
 
 check the path of configuration file is /etc/ansible/ansible.cfg
 
-there all roles and inventory directory is also present.
+all roles and inventory directory are present in /etc/ansible/
