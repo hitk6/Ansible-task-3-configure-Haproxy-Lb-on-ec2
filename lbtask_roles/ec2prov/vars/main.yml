@@ -1,0 +1,9 @@
+---
+# vars file for ec2_prov
+
+unique_id_1: "lb2"
+unique_id_2: "wb2"
+
+#access_key: "hey_there"
+#secret_key: "OwO"
+

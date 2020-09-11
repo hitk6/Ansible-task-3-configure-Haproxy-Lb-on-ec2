@@ -1,0 +1,113 @@
+- name: sg group with port no 8080,22
+  ec2_group:
+    name: "loadbalancer_sg"
+    description: sg with rule descriptions
+    vpc_id: vpc-608d9b08
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    region: ap-south-1
+    rules:
+      - proto: tcp
+        ports:
+        - 8080
+        - 22
+        cidr_ip: 0.0.0.0/0
+        rule_desc: allow all on port 8080,22
+
+- name: sg group with port no 80,22
+  ec2_group:
+    name: "webserver_sg"
+    description: sg with rule descriptions
+    vpc_id: vpc-608d9b08
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    region: ap-south-1
+    rules:
+      - proto: tcp
+        ports:
+        - 80
+        - 22
+        cidr_ip: 0.0.0.0/0
+        rule_desc: allow all on port 80,22
+
+- name: provisioning ec2 for LB
+  ec2:
+    key_name: ans2
+    instance_type: t2.micro
+    region: ap-south-1
+    image: ami-052c08d70def0ac62
+    group: "loadbalancer_sg" 
+    count: 1
+    vpc_subnet_id: subnet-3a5e3276
+    assign_public_ip: yes
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    id: "{{ unique_id_1 }}"
+    instance_tags: '{"Name":"lbserver"}' 
+    wait: yes
+    #wait_timeout: 60
+  register: lb
+  tags: prov
+
+- name: provisioning ec2 for webserver
+  ec2:
+    key_name: ans2
+    instance_type: t2.micro
+    region: ap-south-1
+    image: ami-052c08d70def0ac62
+    group: "webserver_sg" 
+    count: 3
+    vpc_subnet_id: subnet-3a5e3276
+    assign_public_ip: yes
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    id: "{{ unique_id_2 }}"
+    instance_tags: '{"Name":"webserver"}' 
+    wait: yes
+    #wait_timeout: 60
+  register: wb
+  tags: prov
+
+- name: debug lb
+  debug: 
+    msg: "lb ip: {{ lb.instances[0].public_ip }}"
+  tags: prov
+
+- name: debug wb1
+  debug: 
+    msg: "wb ip_1: {{ wb.instances[0].public_ip }}"
+  tags: prov
+
+- name: debug wb2
+  debug: 
+    msg: "wb ip_2: {{ wb.instances[1].public_ip }}"
+  tags: prov
+
+- name: debug wb3
+  debug: 
+    msg: "wb ip_3: {{ wb.instances[2].public_ip }}"
+  tags: prov
+
+
+
+
+- name: sending id keyword to termiante role( makes the task dynamic )
+  lineinfile: 
+       path: "/etc/ansible/myroles/term/vars/main.yml"
+       line: "my_id: {{ unique_id }}"
+       insertafter: alias.*
+  when: false
+
+- command: "touch /etc/ansible/inv_dir/aws_ip"
+  ignore_errors: yes
+  when: false
+
+  
+- name: Insert the public ip at the end of a inventory file(making it dynamic)
+  lineinfile:
+        path: "/etc/ansible/inv_dir/aws_ip"
+        line: "{{ x.instances[0].public_ip }}"
+        insertafter: alias.*
+  when: false
+
+        

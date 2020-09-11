@@ -1,0 +1,9 @@
+- hosts: localhost
+  gather_facts: false
+  vars_files: 
+    - /etc/ansible/lbtask_roles/ec2prov/vars/i_l_u.yml
+
+  roles:
+  - ec2prov
+
+          

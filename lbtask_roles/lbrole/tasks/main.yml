@@ -1,0 +1,24 @@
+- name: install haproxy
+  package:
+    name: "haproxy"
+    state: present
+  register: haproxy_present
+  #when: ansible_hostname == "lb"
+  become: true
+
+- name: debug install haproxy
+  debug: 
+    msg: " haproxy is {{ haproxy_present.rc }}"
+
+- name: print ansible hostname
+  debug: 
+    msg: " hostname is {{ ansible_hostname }}"
+
+- name: sending conf file
+  template:
+    src: "{{ src_file }}"
+    dest: /etc/haproxy/haproxy.cfg
+  notify: start haproxy
+  when:  haproxy_present.rc == 0
+  become: true
+

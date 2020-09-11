@@ -1,0 +1,7 @@
+- hosts: tag_Name_lbserver
+  roles:
+    - lbrole
+
+- hosts: tag_Name_webserver
+  roles: 
+    - node_role
